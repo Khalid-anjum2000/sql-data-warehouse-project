@@ -9,7 +9,6 @@ Script Purpose:
 ===============================================================================
 */
 
-
 DROP TABLE IF EXISTS bronze.crm_cust_info;
 CREATE TABLE bronze.crm_cust_info(
 	cst_id INT,
@@ -58,9 +57,6 @@ CREATE TABLE bronze.erp_cust_az12(
 	gen VARCHAR(50)
 );
 
-
-
-
 drop table if exists bronze.erp_px_cat_g1v2;
 Create Table bronze.erp_px_cat_g1v2(
 id varchar(50),
@@ -76,13 +72,4 @@ CREATE TABLE bronze.erp_px_cat_g1v2(
 	subcat VARCHAR(50),
 	maintenance VARCHAR(50)
 );
-
-
-
-=========
-
-
-
-
-
 
