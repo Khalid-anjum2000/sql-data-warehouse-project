@@ -1,4 +1,7 @@
 
+
+
+--Customer dimesion
 CREATE VIEW gold.dim_customers as
 
 select
@@ -19,4 +22,28 @@ left join silver.erp_cust_az12 ca
 on ci.cst_key= ca.cid
 left join silver.erp_loc_a101 la
 on ci.cst_key = la.cid
+
+
+
+--product Dimesnion
+CREATE VIEW gold.dim_products as
+
+select 
+	row_number() over(order by prd_id) as product_key,
+	pr.prd_id as product_id,
+	pr.prd_key as product_number,
+	pr.prd_name as product_name,
+	pr.cat_id as category_id,
+	pc.cat as category,
+	pc.subcat as subcategory,
+	pc.maintenance as maintainance,
+	pr.prd_cost as cost,
+	pr.prd_line as product_line,
+	pr.prd_start_dt as start_date
+from silver.crm_prd_info pr
+left join silver.erp_px_cat_g1v2 pc
+on pr.cat_id=pc.id
+where pr.prd_end_dt is null
+
+
 
