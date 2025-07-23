@@ -3,7 +3,6 @@
 
 --Customer dimesion
 CREATE VIEW gold.dim_customers as
-
 select
 	row_number() over( order by ci.cst_id) as customer_key,
 	ci.cst_id as customer_id,
@@ -27,7 +26,6 @@ on ci.cst_key = la.cid
 
 --product Dimesnion
 CREATE VIEW gold.dim_products as
-
 select 
 	row_number() over(order by prd_id) as product_key,
 	pr.prd_id as product_id,
@@ -48,17 +46,16 @@ where pr.prd_end_dt is null
 
 --fact sales
 CREATE VIEW gold.fact_sales as
-
 SELECT 
-sls_ord_num as order_number,
-pr.product_key,
-cu.customer_key,
-sls_order_dt as order_date,
-sls_ship_dt as shipping_date,
-sls_due_dt as due_date,
-sls_sales as sales_amount,
-sls_quantity as quantity,
-sls_price as price 
+	sls_ord_num as order_number,
+	pr.product_key,
+	cu.customer_key,
+	sls_order_dt as order_date,
+	sls_ship_dt as shipping_date,
+	sls_due_dt as due_date,
+	sls_sales as sales_amount,
+	sls_quantity as quantity,
+	sls_price as price 
 FROM silver.crm_sales_details sd
 left join gold.dim_products pr
 on sd.sls_prd_key = pr.product_number
