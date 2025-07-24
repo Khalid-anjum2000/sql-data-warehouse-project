@@ -5,20 +5,25 @@ Stored Procedure: Load Silver Layer (Bronze -> Silver)
 Script Purpose:
     This stored procedure performs the ETL (Extract, Transform, Load) process to 
     populate the 'silver' schema tables from the 'bronze' schema.
-	Actions Performed:
-		- Truncates Silver tables.
-		- Inserts transformed and cleansed data from Bronze into Silver tables.
-		
+    
+    Actions Performed:
+        - Truncates 'silver' tables.
+        - Inserts transformed and cleansed data from 'bronze' tables into 'silver'.
+        
 Parameters:
-    None. 
-	  This stored procedure does not accept any parameters or return any values.
+    None.
+    This stored procedure does not accept any parameters or return any values.
 
 Usage Example:
-    EXEC Silver.load_silver;
+    CALL silver.load_silver();  -- PostgreSQL syntax
 ===============================================================================
 */
 
-
+CREATE OR REPLACE PROCEDURE silver.load_silver()
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    -- silver.crm_cust_info
     TRUNCATE TABLE silver.crm_cust_info;
     INSERT INTO silver.crm_cust_info (
         cst_id, cst_key, cst_firstname, cst_lastname, cst_marital_status, cst_gndr, cst_create_date
@@ -40,14 +45,15 @@ Usage Example:
         END,
         cst_create_date
     FROM (
-        SELECT *,
-               ROW_NUMBER() OVER (PARTITION BY cst_id ORDER BY cst_create_date DESC) AS flag_last
-        FROM bronze.crm_cust_info
-        WHERE cst_id IS NOT NULL
-    ) t
-    WHERE flag_last = 1;
+        SELECT * FROM (
+            SELECT *, ROW_NUMBER() OVER (PARTITION BY cst_id ORDER BY cst_create_date DESC) AS flag_last
+            FROM bronze.crm_cust_info
+            WHERE cst_id IS NOT NULL
+        ) AS sub
+        WHERE flag_last = 1
+    ) t;
 
-	
+    -- silver.crm_prd_info
     TRUNCATE TABLE silver.crm_prd_info;
     INSERT INTO silver.crm_prd_info (
         prd_id, cat_id, prd_key, prd_name, prd_cost, prd_line, prd_start_dt, prd_end_dt
@@ -68,7 +74,6 @@ Usage Example:
         prd_start_dt::DATE,
         (LEAD(prd_start_dt) OVER (PARTITION BY prd_key ORDER BY prd_start_dt) - INTERVAL '1 day')::DATE
     FROM bronze.crm_prd_info;
-
 
     -- silver.crm_sales_details
     TRUNCATE TABLE silver.crm_sales_details;
@@ -123,7 +128,7 @@ Usage Example:
             ELSE 'n/a'
         END
     FROM bronze.erp_cust_az12;
-	
+
     -- silver.erp_loc_a101
     TRUNCATE TABLE silver.erp_loc_a101;
     INSERT INTO silver.erp_loc_a101 (cid, cntry)
@@ -143,6 +148,10 @@ Usage Example:
     SELECT id, cat, subcat, maintenance
     FROM bronze.erp_px_cat_g1v2;
 
-
-
-
+    RAISE NOTICE 'Silver layer successfully loaded.';
+    
+EXCEPTION
+    WHEN OTHERS THEN
+        RAISE EXCEPTION 'Error loading silver layer: %', SQLERRM;
+END;
+$$;
