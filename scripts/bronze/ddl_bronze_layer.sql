@@ -1,12 +1,15 @@
--- ===============================================================================
--- DDL Script: Create Bronze Tables
--- ===============================================================================
--- Script Purpose:
---   This script creates tables in the 'bronze' schema, dropping existing tables 
---    if they already exist.
---	  Run this script to re-define the DDL structure of 'bronze' Tables
--- ===============================================================================
-
+/*
+===============================================================================
+ DDL Script: Create Bronze Tables (PostgreSQL)
+===============================================================================
+ Script Purpose:
+    This script creates tables in the 'bronze' schema for the PostgreSQL-based
+    data warehouse. It drops existing tables if they already exist.
+    
+    Use this script to re-define or reset the structure of Bronze Layer tables 
+    during development or reinitialization.
+===============================================================================
+*/
 
 DROP TABLE IF EXISTS bronze.crm_cust_info;
 CREATE TABLE bronze.crm_cust_info(
